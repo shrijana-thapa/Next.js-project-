@@ -2,11 +2,12 @@
 
 import { useForm } from 'react-hook-form';
 import { useEffect } from 'react';
-import { User } from '@/types/user';
 import { useParams, useRouter } from 'next/navigation';
 import { useFetchUserById } from '@/hooks/useFetchUserById';
 import { useUpdateUser } from '@/hooks/useUpdateUser';
 import { useAddUser } from '@/hooks/useAddUser';
+import { UserSchema, userSchema } from '@/schemas/user.schema';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 export const UserForm = () => {
   const {
@@ -14,7 +15,10 @@ export const UserForm = () => {
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<User>();
+  } = useForm<UserSchema>({
+    resolver: zodResolver(userSchema),
+    mode: 'onChange',
+  });
 
   const router = useRouter();
   const params = useParams();
@@ -36,10 +40,14 @@ export const UserForm = () => {
     return <div>Loading...</div>;
   }
 
-  const onSubmit = (data: User) => {
+  const onSubmit = (data: UserSchema) => {
+    const payload = {
+      ...data,
+      age: Number(data.age),
+    };
     if (isEdit && id) {
       updateMutation.mutate(
-        { id: Number(id), data },
+        { id: Number(id), data: payload },
         {
           onSuccess: () => {
             reset();
@@ -48,7 +56,7 @@ export const UserForm = () => {
         },
       );
     } else {
-      addUserMutation.mutate(data, {
+      addUserMutation.mutate(payload, {
         onSuccess: () => {
           reset();
           router.push('/');
@@ -66,30 +74,20 @@ export const UserForm = () => {
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
         <input
-          {...register('name', { required: true })}
+          {...register('name')}
           placeholder="Name"
           className="w-full px-3 py-2 border rounded"
         />
         {errors.name && <p className="text-red-500">{errors.name.message}</p>}
         <input
-          {...register('email', { required: 'Email is required' })}
+          {...register('email')}
           placeholder="Email"
           className="w-full px-3 py-2 border rounded"
         />
-        {errors.email && <p>{errors.email.message}</p>}
+        {errors.email && <p className="text-red-500">{errors.email.message}</p>}
 
         <input
-          {...register('age', {
-            valueAsNumber: true,
-            min: {
-              value: 1,
-              message: 'Age must be at least 1',
-            },
-            max: {
-              value: 120,
-              message: 'Age must be less than 120',
-            },
-          })}
+          {...register('age')}
           type="number"
           placeholder="Age"
           className="w-full px-3 py-2 border rounded"

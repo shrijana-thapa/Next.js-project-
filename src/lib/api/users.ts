@@ -1,6 +1,6 @@
-import { User } from '@/types/user';
+import { UserSchema } from '@/schemas/user.schema';
+import { UserPayload } from '@/types/user';
 import axios from 'axios';
-import { log } from 'console';
 export const fetchUsers = async () => {
   const res = await axios.get('/api/users');
   return res.data;
@@ -32,7 +32,7 @@ export const updateUserApi = async ({
   data,
 }: {
   id: number;
-  data: User;
+  data: UserPayload;
 }) => {
   const res = await fetch(`/api/users/${id}`, {
     method: 'PATCH',
@@ -44,7 +44,7 @@ export const updateUserApi = async ({
   return res.json();
 };
 
-export const addUserApi = async (data: User) => {
+export const addUserApi = async (data: UserPayload) => {
   const res = await fetch('/api/users', {
     method: 'POST',
     headers: {
