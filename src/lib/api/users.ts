@@ -1,4 +1,3 @@
-import { UserSchema } from '@/schemas/user.schema';
 import { UserPayload } from '@/types/user';
 import axios from 'axios';
 export const fetchUsers = async () => {

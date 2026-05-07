@@ -5,8 +5,9 @@ export const userSchema = z.object({
 
   email: z
     .string()
-    .min(1, "Email is required")
-    .email({ message: "Enter a valid email" }),
+    .min(1, "Email is required").and(
+      z.email({ message: "Enter a valid email" })
+    ),
 
   age: z
     .string()
